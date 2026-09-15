@@ -5,10 +5,25 @@ import "forge-std/Test.sol";
 import "../src/Arbitrage.sol";
 
 contract ArbitrageTest is Test {
-    // Teste mínimo que não instancia o contrato para evitar revert no setUp
-    function test_placeholder() public pure {
-        assertEq(uint256(1), uint256(1));
+    Arbitrage public arb;
+
+    function setUp() public {
+        arb = new Arbitrage();
     }
 
-    // TODO: implementar testes com fork da Celo e mocks de Aave/Mento
+    function test_ownerIsSet() public {
+        assertEq(arb.owner(), address(this));
+    }
+
+    function test_minProfit() public {
+        assertEq(arb.minProfit(), 4e6);
+    }
+
+    function check_onlyOwner(address caller) public {
+        vm.assume(caller != arb.owner());
+
+        vm.prank(caller);
+        vm.expectRevert("Not owner");
+        arb.requestFlashLoan(1e6);
+    }
 }
